@@ -68,7 +68,7 @@ import del from './del.svg'
 
     //  render(){
 
-        console.log("props",props)
+        //console.log("props",props)
        // const{price,title,qty}=this.props
         const {price, title,qty,id}= props.product;
         const{product,

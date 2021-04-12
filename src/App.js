@@ -5,6 +5,8 @@ import apple from './apple.jpg'
 import iphone from './iphone.jpg'
 import watch from './watch.jpg'
 import NavBar from './NavBar'
+import firebase from 'firebase'
+import 'firebase/firestore'
 
 
 class  App extends React.Component {
@@ -13,31 +15,36 @@ class  App extends React.Component {
     super();
     this.state={
        products:[
-           {
-           price: 99,
-           title: "watch",
-           qty:1,
-           img:watch,
-           id:1
-           },
-           {
-            price: 999,
-            title: "mobilePhone",
-            qty:10,
-            img:iphone,
-            id:2
 
-            },
-            {
-                price: 888,
-                title: "laptop",
-                qty:4,
-                img:apple,
-                id:3
+        //we ll fetch the firebase
+          //  {
+          //  price: 99,
+          //  title: "watch",
+          //  qty:1,
+          //  img:watch,
+          //  id:1
+          //  },
+          //  {
+          //   price: 999,
+          //   title: "mobilePhone",
+          //   qty:10,
+          //   img:iphone,
+          //   id:2
 
-                }
-       ]
+          //   },
+          //   {
+          //       price: 888,
+          //       title: "laptop",
+          //       qty:4,
+          //       img:apple,
+          //       id:3
+
+          //       }
+       ],
+       loading:true
     }
+
+    this.db=firebase.firestore();
 }
 
 handleDecreaseQuantity=(product)=>{
@@ -94,22 +101,91 @@ handleDeleteProduct=(id)=>{
    let cartTotal=0;
  
    products.map((product)=>{
-     cartTotal+=cartTotal+ product.qty*product.price
+     return cartTotal+=cartTotal+ product.qty*product.price
    })
  
    return cartTotal;
  }
 
+
+ 
+ componentDidMount(){
+  // firebase.firestore().collection('products').get().then((snapshot)=>{
+  //   console.log('querysnapshot',snapshot)
+
+  //   snapshot.docs.map((doc)=>{
+  //     console.log(doc.data())
+  //   })
+
+  //   const products=snapshot.docs.map((doc)=>{
+  //     const data=doc.data();
+  //       data['id']=doc.id  // same as data.id=doc.id;
+  //     console.log("datatype",typeof data)
+  //     return data;
+  //   })
+
+  //   this.setState({
+  //     products:products,
+  //     loading:false,
+  //   })
+        
+  // })
+
+
+this.db.collection('products').onSnapshot((snapshot)=>{
+    console.log('querysnapshot',snapshot)
+
+    snapshot.docs.map((doc)=>{
+      console.log(doc.data())
+    })
+
+    const products=snapshot.docs.map((doc)=>{
+      const data=doc.data();
+        data['id']=doc.id  // same as data.id=doc.id;
+      console.log("datatype",typeof data)
+      return data;
+    })
+
+    this.setState({
+      products:products,
+      loading:false,
+    })
+        
+  })
+}
+
+addProduct=()=>{
+
+  this.db.collection('products')
+  .add({
+    img:"",
+    price:45,
+    qty:5,
+    title:'washing machine'
+  })
+  .then((docRef)=>{
+      console.log("product is add",docRef)
+     
+  })
+  .catch((error)=>{
+    console.log('Error',error)
+
+  })
+
+}
+
   render(){
-    const{products}=this.state;
+    const{products,loading}=this.state;
   return (
     <div className="App">
      <NavBar  count={this.getCartCount()}/>
+     <button onClick={this.addProduct} style={{padding:20,fontSize:20}}>add a product</button>
      <Cart
           products={products}
         onIncreaseQuantity={this.handleIncreaseQuantity}
         onDecreaseQuantity={this.handleDecreaseQuantity}
         onDeleteProduct={this.handleDeleteProduct}/>
+        {loading && <h1>Loading products...</h1>}
         <div style={{fontSize:20,padding:10}}> TOTAL: {this.getCartTotal()}</div>
     </div>
   );
