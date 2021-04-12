@@ -55,34 +55,65 @@ handleDecreaseQuantity=(product)=>{
          return;
      }
 
-     products[index].qty-=1;
-     this.setState({
-         products:products
-     })
+    //  products[index].qty-=1;
+    //  this.setState({
+    //      products:products
+    //  })
+
+    const docRef=this.db.collection('products').doc(products[index].id);
+    docRef.update({
+      qty:products[index].qty-1
+    }).then(()=>{
+     console.log("update successful")
+    })
+    .catch((error)=>{
+         console.log("Error",error)
+    })
+
+   
+
+     
 }
 
 handleIncreaseQuantity=(product)=>{
   const {products} =this.state;
   const index=products.indexOf(product);
 
-  products[index].qty+=1;
+  // products[index].qty+=1;
 
-  this.setState({
-      products:products
-  })
+  // this.setState({
+  //     products:products
+  // })
+
+  const docRef=this.db.collection('products').doc(products[index].id);
+     docRef.update({
+       qty:products[index].qty+1
+     }).then(()=>{
+      console.log("update successful")
+     })
+     .catch((error)=>{
+          console.log("Error",error)
+     })
 }
 
 handleDeleteProduct=(id)=>{
   const {products} =this.state
 
-  const items=products.filter((item)=> item.id!==id)
+  // const items=products.filter((item)=> item.id!==id)
 
-  this.setState({
-      products:items
-  })
+  // this.setState({
+  //     products:items
+  // })
 
-   console.log("del me")
+  //  console.log("del me")
 
+     const docRef=this.db.collection('products').doc(id);
+
+     docRef
+     .delete()
+     .then(()=>{
+       console.log("deleted product")
+     })
 
 }
 
